@@ -1,7 +1,20 @@
 "use client";
 
 import { useStorage } from "@/liveblocks.config";
-import { LayerType } from "@/types/canvas";
+import { 
+    LayerType, 
+    Layer,
+    RectangleLayer,
+    EllipseLayer,
+    TextLayer,
+    NoteLayer,
+    PathLayer,
+    DiamondLayer,
+    ArrowLayer,
+    LeftArrowLayer,
+    TopArrowLayer,
+    BottomArrowLayer
+} from "@/types/canvas";
 import { memo } from "react";
 import { Rectangle } from "./rectangle";
 import { Ellipse } from "./ellipse";
@@ -10,6 +23,9 @@ import { Note } from "./note";
 import { Path } from "./path";
 import { Diamond } from "./diamond";
 import { Arrow } from "./arrow";
+import { LeftArrow } from "./left-arrow";
+import { TopArrow } from "./top-arrow";
+import { BottomArrow } from "./bottom-arrow";
 import { colorToCss } from "@/lib/utils";
 
 interface LayerPreviewProps {
@@ -39,7 +55,7 @@ export const LayerPreview = memo(
                 return (
                     <Note
                         id={id}
-                        layer={layer}
+                        layer={layer as NoteLayer}
                         onPointerDown={onLayerPointerDown}
                         selectionColor={selectionColor}
                     />
@@ -48,7 +64,7 @@ export const LayerPreview = memo(
                 return (
                     <Text
                         id={id}
-                        layer={layer}
+                        layer={layer as TextLayer}
                         onPointerDown={onLayerPointerDown}
                         selectionColor={selectionColor}
                     />
@@ -57,7 +73,7 @@ export const LayerPreview = memo(
                 return (
                     <Ellipse
                         id={id}
-                        layer={layer}
+                        layer={layer as EllipseLayer}
                         onPointerDown={onLayerPointerDown}
                         selectionColor={selectionColor}
                     />
@@ -66,7 +82,7 @@ export const LayerPreview = memo(
                 return (
                     <Rectangle
                         id={id}
-                        layer={layer}
+                        layer={layer as RectangleLayer}
                         onPointerDown={onLayerPointerDown}
                         selectionColor={selectionColor}
                     />
@@ -75,7 +91,7 @@ export const LayerPreview = memo(
                 return (
                     <Diamond
                         id={id}
-                        layer={layer}
+                        layer={layer as DiamondLayer}
                         onPointerDown={onLayerPointerDown}
                         selectionColor={selectionColor}
                     />
@@ -84,12 +100,38 @@ export const LayerPreview = memo(
                 return (
                     <Arrow
                         id={id}
-                        layer={layer}
+                        layer={layer as ArrowLayer}
                         onPointerDown={onLayerPointerDown}
                         selectionColor={selectionColor}
                     />
                 );
-
+            case LayerType.LeftArrow:
+                return (
+                    <LeftArrow
+                        id={id}
+                        layer={layer as LeftArrowLayer}
+                        onPointerDown={onLayerPointerDown}
+                        selectionColor={selectionColor}
+                    />
+                );
+            case LayerType.TopArrow:
+                return (
+                    <TopArrow
+                        id={id}
+                        layer={layer as TopArrowLayer}
+                        onPointerDown={onLayerPointerDown}
+                        selectionColor={selectionColor}
+                    />
+                );
+            case LayerType.BottomArrow:
+                return (
+                    <BottomArrow
+                        id={id}
+                        layer={layer as BottomArrowLayer}
+                        onPointerDown={onLayerPointerDown}
+                        selectionColor={selectionColor}
+                    />
+                );
             default:
                 console.warn("Unsupported layer type");
         }

@@ -11,6 +11,9 @@ import {
     Undo2,
     Diamond,
     ArrowRight,
+    ArrowLeft,
+    ArrowUp,
+    ArrowDown,
     MoreHorizontal,
     ChevronUp,
 } from "lucide-react";
@@ -42,7 +45,7 @@ const Toolbar = ({
         const onKeyDown = (e: KeyboardEvent) => {
             if (selection?.length > 0) return;
             switch (e.key) {
-                case "a":
+                case "s":
                     if (e.ctrlKey) setCanvasState({ mode: CanvasMode.None });
                     break;
 
@@ -87,10 +90,34 @@ const Toolbar = ({
                     break;
 
                 case "a":
-                    if (e.ctrlKey && !e.shiftKey)
+                    if (e.ctrlKey)
                         setCanvasState({
                             mode: CanvasMode.Inserting,
                             layerType: LayerType.Arrow,
+                        });
+                    break;
+
+                case "l":
+                    if (e.ctrlKey)
+                        setCanvasState({
+                            mode: CanvasMode.Inserting,
+                            layerType: LayerType.LeftArrow,
+                        });
+                    break;
+
+                case "u":
+                    if (e.ctrlKey)
+                        setCanvasState({
+                            mode: CanvasMode.Inserting,
+                            layerType: LayerType.TopArrow,
+                        });
+                    break;
+
+                case "b":
+                    if (e.ctrlKey)
+                        setCanvasState({
+                            mode: CanvasMode.Inserting,
+                            layerType: LayerType.BottomArrow,
                         });
                     break;
 
@@ -107,10 +134,10 @@ const Toolbar = ({
     }, [selection, setCanvasState]);
 
     return (
-        <div className="absolute top-[20%] left-2 flex flex-col gap-y-4">
+        <div className="absolute top-[20%] left-2 flex flex-row gap-x-4">
             <div className="bg-white rounded-md p-1.5 flex gap-1 flex-col items-center shadow-md">
                 <ToolButton
-                    label="Select (Ctrl+A)"
+                    label="Select (Ctrl+S)"
                     icon={MousePointer2}
                     onClick={() => setCanvasState({ mode: CanvasMode.None })}
                     isActive={
@@ -183,49 +210,91 @@ const Toolbar = ({
                     onClick={() => setShowMore(!showMore)}
                     isActive={showMore}
                 />
-                {showMore && (
-                    <>
-                        <ToolButton
-                            label="Diamond (Ctrl+D)"
-                            icon={Diamond}
-                            onClick={() =>
-                                setCanvasState({
-                                    mode: CanvasMode.Inserting,
-                                    layerType: LayerType.Diamond,
-                                })
-                            }
-                            isActive={
-                                canvasState.mode === CanvasMode.Inserting &&
-                                canvasState.layerType === LayerType.Diamond
-                            }
-                        />
-                        <ToolButton
-                            label="Arrow (Ctrl+A)"
-                            icon={ArrowRight}
-                            onClick={() =>
-                                setCanvasState({
-                                    mode: CanvasMode.Inserting,
-                                    layerType: LayerType.Arrow,
-                                })
-                            }
-                            isActive={
-                                canvasState.mode === CanvasMode.Inserting &&
-                                canvasState.layerType === LayerType.Arrow
-                            }
-                        />
-                        <ToolButton
-                            label="Pen"
-                            icon={Pencil}
-                            onClick={() =>
-                                setCanvasState({
-                                    mode: CanvasMode.Pencil,
-                                })
-                            }
-                            isActive={canvasState.mode === CanvasMode.Pencil}
-                        />
-                    </>
-                )}
             </div>
+            {showMore && (
+                <div className="bg-white rounded-md p-1.5 flex gap-1 flex-col items-center shadow-md">
+                    <ToolButton
+                        label="Diamond (Ctrl+D)"
+                        icon={Diamond}
+                        onClick={() =>
+                            setCanvasState({
+                                mode: CanvasMode.Inserting,
+                                layerType: LayerType.Diamond,
+                            })
+                        }
+                        isActive={
+                            canvasState.mode === CanvasMode.Inserting &&
+                            canvasState.layerType === LayerType.Diamond
+                        }
+                    />
+                    <ToolButton
+                        label="Arrow (Ctrl+A)"
+                        icon={ArrowRight}
+                        onClick={() =>
+                            setCanvasState({
+                                mode: CanvasMode.Inserting,
+                                layerType: LayerType.Arrow,
+                            })
+                        }
+                        isActive={
+                            canvasState.mode === CanvasMode.Inserting &&
+                            canvasState.layerType === LayerType.Arrow
+                        }
+                    />
+                    <ToolButton
+                        label="Left Arrow (Ctrl+L)"
+                        icon={ArrowLeft}
+                        onClick={() =>
+                            setCanvasState({
+                                mode: CanvasMode.Inserting,
+                                layerType: LayerType.LeftArrow,
+                            })
+                        }
+                        isActive={
+                            canvasState.mode === CanvasMode.Inserting &&
+                            canvasState.layerType === LayerType.LeftArrow
+                        }
+                    />
+                    <ToolButton
+                        label="Top Arrow (Ctrl+U)"
+                        icon={ArrowUp}
+                        onClick={() =>
+                            setCanvasState({
+                                mode: CanvasMode.Inserting,
+                                layerType: LayerType.TopArrow,
+                            })
+                        }
+                        isActive={
+                            canvasState.mode === CanvasMode.Inserting &&
+                            canvasState.layerType === LayerType.TopArrow
+                        }
+                    />
+                    <ToolButton
+                        label="Bottom Arrow (Ctrl+B)"
+                        icon={ArrowDown}
+                        onClick={() =>
+                            setCanvasState({
+                                mode: CanvasMode.Inserting,
+                                layerType: LayerType.BottomArrow,
+                            })
+                        }
+                        isActive={
+                            canvasState.mode === CanvasMode.Inserting &&
+                            canvasState.layerType === LayerType.BottomArrow
+                        }
+                    />
+                    <ToolButton
+                        label="Pen"
+                        icon={Pencil}
+                        onClick={() =>
+                            setCanvasState({
+                                mode: CanvasMode.Pencil,
+                            })
+                        }
+                        isActive={canvasState.mode === CanvasMode.Pencil}
+                    />
+                </div>
+            )}
             <div className="bg-white rounded-md p-1.5 flex flex-col items-center shadow-md">
                 <ToolButton
                     label="Undo (Ctrl+Z)"

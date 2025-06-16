@@ -17,6 +17,9 @@ export enum LayerType {
     Note,
     Diamond,
     Arrow,
+    LeftArrow,
+    TopArrow,
+    BottomArrow,
 }
 
 export type RectangleLayer = {
@@ -90,6 +93,36 @@ export type ArrowLayer = {
     value?: string;
 };
 
+export type LeftArrowLayer = {
+    type: LayerType.LeftArrow;
+    x: number;
+    y: number;
+    height: number;
+    width: number;
+    fill: Color;
+    value?: string;
+};
+
+export type TopArrowLayer = {
+    type: LayerType.TopArrow;
+    x: number;
+    y: number;
+    height: number;
+    width: number;
+    fill: Color;
+    value?: string;
+};
+
+export type BottomArrowLayer = {
+    type: LayerType.BottomArrow;
+    x: number;
+    y: number;
+    height: number;
+    width: number;
+    fill: Color;
+    value?: string;
+};
+
 export type Point = {
     x: number;
     y: number;
@@ -130,7 +163,10 @@ export type CanvasState =
               | LayerType.Text
               | LayerType.Note
               | LayerType.Diamond
-              | LayerType.Arrow;
+              | LayerType.Arrow
+              | LayerType.LeftArrow
+              | LayerType.TopArrow
+              | LayerType.BottomArrow;
       }
     | {
           mode: CanvasMode.Pencil;
@@ -162,4 +198,7 @@ export type Layer =
     | TextLayer
     | NoteLayer
     | DiamondLayer
-    | ArrowLayer;
+    | ArrowLayer
+    | LeftArrowLayer
+    | TopArrowLayer
+    | BottomArrowLayer;

@@ -21,6 +21,15 @@ import {
     Side,
     XYWH,
     Layer,
+    ArrowLayer,
+    LeftArrowLayer,
+    TopArrowLayer,
+    BottomArrowLayer,
+    RectangleLayer,
+    EllipseLayer,
+    TextLayer,
+    NoteLayer,
+    DiamondLayer,
 } from "@/types/canvas";
 import {
     useHistory,
@@ -121,6 +130,33 @@ export const Canvas = ({ boardId }: CanvasProps) => {
             if (layerType === LayerType.Arrow) {
                 layer = new LiveObject<ArrowLayer>({
                     type: LayerType.Arrow,
+                    x: position.x,
+                    y: position.y,
+                    height,
+                    width,
+                    fill: lastUsedColor,
+                });
+            } else if (layerType === LayerType.LeftArrow) {
+                layer = new LiveObject<LeftArrowLayer>({
+                    type: LayerType.LeftArrow,
+                    x: position.x,
+                    y: position.y,
+                    height,
+                    width,
+                    fill: lastUsedColor,
+                });
+            } else if (layerType === LayerType.TopArrow) {
+                layer = new LiveObject<TopArrowLayer>({
+                    type: LayerType.TopArrow,
+                    x: position.x,
+                    y: position.y,
+                    height,
+                    width,
+                    fill: lastUsedColor,
+                });
+            } else if (layerType === LayerType.BottomArrow) {
+                layer = new LiveObject<BottomArrowLayer>({
+                    type: LayerType.BottomArrow,
                     x: position.x,
                     y: position.y,
                     height,
