@@ -15,6 +15,8 @@ export enum LayerType {
     Path,
     Text,
     Note,
+    Diamond,
+    Arrow,
 }
 
 export type RectangleLayer = {
@@ -68,6 +70,26 @@ export type NoteLayer = {
     value?: string;
 };
 
+export type DiamondLayer = {
+    type: LayerType.Diamond;
+    x: number;
+    y: number;
+    height: number;
+    width: number;
+    fill: Color;
+    value?: string;
+};
+
+export type ArrowLayer = {
+    type: LayerType.Arrow;
+    x: number;
+    y: number;
+    height: number;
+    width: number;
+    fill: Color;
+    value?: string;
+};
+
 export type Point = {
     x: number;
     y: number;
@@ -106,7 +128,9 @@ export type CanvasState =
               | LayerType.Ellipse
               | LayerType.Rectangle
               | LayerType.Text
-              | LayerType.Note;
+              | LayerType.Note
+              | LayerType.Diamond
+              | LayerType.Arrow;
       }
     | {
           mode: CanvasMode.Pencil;
@@ -136,4 +160,6 @@ export type Layer =
     | EllipseLayer
     | PathLayer
     | TextLayer
-    | NoteLayer;
+    | NoteLayer
+    | DiamondLayer
+    | ArrowLayer;

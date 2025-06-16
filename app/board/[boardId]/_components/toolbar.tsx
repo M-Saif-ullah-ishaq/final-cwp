@@ -9,9 +9,13 @@ import {
     StickyNote,
     TypeIcon,
     Undo2,
+    Diamond,
+    ArrowRight,
+    MoreHorizontal,
+    ChevronUp,
 } from "lucide-react";
 import { CanvasMode, CanvasState, LayerType } from "@/types/canvas";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelf } from "@/liveblocks.config";
 
 interface ToolbarProps {
@@ -32,6 +36,7 @@ const Toolbar = ({
     canRedo,
 }: ToolbarProps) => {
     const selection = useSelf((me) => me.presence.selection);
+    const [showMore, setShowMore] = useState(false);
 
     useEffect(() => {
         const onKeyDown = (e: KeyboardEvent) => {
@@ -73,6 +78,22 @@ const Toolbar = ({
                         });
                     break;
 
+                case "d":
+                    if (e.ctrlKey)
+                        setCanvasState({
+                            mode: CanvasMode.Inserting,
+                            layerType: LayerType.Diamond,
+                        });
+                    break;
+
+                case "a":
+                    if (e.ctrlKey && !e.shiftKey)
+                        setCanvasState({
+                            mode: CanvasMode.Inserting,
+                            layerType: LayerType.Arrow,
+                        });
+                    break;
+
                 default:
                     break;
             }
@@ -86,7 +107,7 @@ const Toolbar = ({
     }, [selection, setCanvasState]);
 
     return (
-        <div className="absolute top-[50%] -translate-y-[50%] left-2 flex flex-col gap-y-4">
+        <div className="absolute top-[20%] left-2 flex flex-col gap-y-4">
             <div className="bg-white rounded-md p-1.5 flex gap-1 flex-col items-center shadow-md">
                 <ToolButton
                     label="Select (Ctrl+A)"
@@ -157,15 +178,53 @@ const Toolbar = ({
                     }
                 />
                 <ToolButton
-                    label="Pen"
-                    icon={Pencil}
-                    onClick={() =>
-                        setCanvasState({
-                            mode: CanvasMode.Pencil,
-                        })
-                    }
-                    isActive={canvasState.mode === CanvasMode.Pencil}
+                    label={showMore ? "Less" : "More"}
+                    icon={showMore ? ChevronUp : MoreHorizontal}
+                    onClick={() => setShowMore(!showMore)}
+                    isActive={showMore}
                 />
+                {showMore && (
+                    <>
+                        <ToolButton
+                            label="Diamond (Ctrl+D)"
+                            icon={Diamond}
+                            onClick={() =>
+                                setCanvasState({
+                                    mode: CanvasMode.Inserting,
+                                    layerType: LayerType.Diamond,
+                                })
+                            }
+                            isActive={
+                                canvasState.mode === CanvasMode.Inserting &&
+                                canvasState.layerType === LayerType.Diamond
+                            }
+                        />
+                        <ToolButton
+                            label="Arrow (Ctrl+A)"
+                            icon={ArrowRight}
+                            onClick={() =>
+                                setCanvasState({
+                                    mode: CanvasMode.Inserting,
+                                    layerType: LayerType.Arrow,
+                                })
+                            }
+                            isActive={
+                                canvasState.mode === CanvasMode.Inserting &&
+                                canvasState.layerType === LayerType.Arrow
+                            }
+                        />
+                        <ToolButton
+                            label="Pen"
+                            icon={Pencil}
+                            onClick={() =>
+                                setCanvasState({
+                                    mode: CanvasMode.Pencil,
+                                })
+                            }
+                            isActive={canvasState.mode === CanvasMode.Pencil}
+                        />
+                    </>
+                )}
             </div>
             <div className="bg-white rounded-md p-1.5 flex flex-col items-center shadow-md">
                 <ToolButton
@@ -187,7 +246,7 @@ const Toolbar = ({
 
 export const ToolbarSkeleton = () => {
     return (
-        <div className="absolute top-[50%] -translate-y-[50%] left-2 flex flex-col gap-y-4 rounded-md animate-shimmer bg-gradient-to-r from-gray-300 via-gray-200 to-gray-300 bg-[length:200%_100%] h-[360px] w-[52px]">
+        <div className="absolute top-[20%] left-2 flex flex-col gap-y-4 rounded-md animate-shimmer bg-gradient-to-r from-gray-300 via-gray-200 to-gray-300 bg-[length:200%_100%] h-[360px] w-[52px]">
             <Skeleton />
         </div>
     );

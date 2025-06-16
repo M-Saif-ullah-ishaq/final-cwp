@@ -8,6 +8,8 @@ import { Ellipse } from "./ellipse";
 import { Text } from "./text";
 import { Note } from "./note";
 import { Path } from "./path";
+import { Diamond } from "./diamond";
+import { Arrow } from "./arrow";
 import { colorToCss } from "@/lib/utils";
 
 interface LayerPreviewProps {
@@ -63,6 +65,24 @@ export const LayerPreview = memo(
             case LayerType.Rectangle:
                 return (
                     <Rectangle
+                        id={id}
+                        layer={layer}
+                        onPointerDown={onLayerPointerDown}
+                        selectionColor={selectionColor}
+                    />
+                );
+            case LayerType.Diamond:
+                return (
+                    <Diamond
+                        id={id}
+                        layer={layer}
+                        onPointerDown={onLayerPointerDown}
+                        selectionColor={selectionColor}
+                    />
+                );
+            case LayerType.Arrow:
+                return (
+                    <Arrow
                         id={id}
                         layer={layer}
                         onPointerDown={onLayerPointerDown}

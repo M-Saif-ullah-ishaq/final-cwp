@@ -70,6 +70,8 @@ export const Canvas = ({ boardId }: CanvasProps) => {
         mode: CanvasMode.None,
     });
 
+    const [arrowStart, setArrowStart] = useState<Point | null>(null);
+
     const [camera, setCamera] = useState<Camera>({ x: 0, y: 0 });
 
     const resetCamera = useCallback(() => {
@@ -90,12 +92,9 @@ export const Canvas = ({ boardId }: CanvasProps) => {
     const insertLayer = useMutation(
         (
             { storage, setMyPresence },
-            layerType:
-                | LayerType.Ellipse
-                | LayerType.Rectangle
-                | LayerType.Text
-                | LayerType.Note,
-            position: Point
+            layerType: LayerType,
+            position: Point,
+            endPosition?: Point
         ) => {
             const liveLayers = storage.get("layers");
             if (liveLayers.size >= MAX_LAYERS) {
@@ -104,20 +103,85 @@ export const Canvas = ({ boardId }: CanvasProps) => {
 
             const liveLayerIds = storage.get("layerIds");
             const layerId = nanoid();
-            const layer = new LiveObject({
-                type: layerType,
-                x: position.x,
-                y: position.y,
-                height: 100,
-                width: 100,
-                fill: lastUsedColor,
-            });
 
-            liveLayerIds.push(layerId);
-            liveLayers.set(layerId, layer);
+            let width = 100;
+            let height = 100;
 
-            setMyPresence({ selection: [layerId] }, { addToHistory: true });
-            setCanvasState({ mode: CanvasMode.None });
+            if (layerType === LayerType.Arrow && endPosition) {
+                // Calculate width and height based on drag distance
+                width = Math.abs(endPosition.x - position.x);
+                height = Math.abs(endPosition.y - position.y);
+                
+                // Ensure minimum size
+                width = Math.max(width, 50);
+                height = Math.max(height, 20);
+            }
+
+            let layer;
+            if (layerType === LayerType.Arrow) {
+                layer = new LiveObject<ArrowLayer>({
+                    type: LayerType.Arrow,
+                    x: position.x,
+                    y: position.y,
+                    height,
+                    width,
+                    fill: lastUsedColor,
+                });
+            } else if (layerType === LayerType.Rectangle) {
+                layer = new LiveObject<RectangleLayer>({
+                    type: LayerType.Rectangle,
+                    x: position.x,
+                    y: position.y,
+                    height,
+                    width,
+                    fill: lastUsedColor,
+                });
+            } else if (layerType === LayerType.Ellipse) {
+                layer = new LiveObject<EllipseLayer>({
+                    type: LayerType.Ellipse,
+                    x: position.x,
+                    y: position.y,
+                    height,
+                    width,
+                    fill: lastUsedColor,
+                });
+            } else if (layerType === LayerType.Text) {
+                layer = new LiveObject<TextLayer>({
+                    type: LayerType.Text,
+                    x: position.x,
+                    y: position.y,
+                    height,
+                    width,
+                    fill: lastUsedColor,
+                });
+            } else if (layerType === LayerType.Note) {
+                layer = new LiveObject<NoteLayer>({
+                    type: LayerType.Note,
+                    x: position.x,
+                    y: position.y,
+                    height,
+                    width,
+                    fill: lastUsedColor,
+                });
+            } else if (layerType === LayerType.Diamond) {
+                layer = new LiveObject<DiamondLayer>({
+                    type: LayerType.Diamond,
+                    x: position.x,
+                    y: position.y,
+                    height,
+                    width,
+                    fill: lastUsedColor,
+                });
+            }
+
+            if (layer) {
+                liveLayerIds.push(layerId);
+                liveLayers.set(layerId, layer);
+
+                setMyPresence({ selection: [layerId] }, { addToHistory: true });
+                setCanvasState({ mode: CanvasMode.None });
+                setArrowStart(null);
+            }
         },
         [lastUsedColor]
     );
@@ -289,12 +353,18 @@ export const Canvas = ({ boardId }: CanvasProps) => {
         });
     }, []);
 
-    const onPointerMove = useMutation(
-        ({ setMyPresence }, e: React.PointerEvent) => {
+    const onPointerMove = useCallback(
+        (e: React.PointerEvent) => {
             e.preventDefault();
             const current = pointerEventToCanvasPoint(e, camera);
 
-            if (canvasState.mode === CanvasMode.Pressing) {
+            if (canvasState.mode === CanvasMode.Pressing && arrowStart) {
+                // Update the arrow preview
+                setCanvasState({
+                    mode: CanvasMode.Inserting,
+                    layerType: LayerType.Arrow,
+                });
+            } else if (canvasState.mode === CanvasMode.Pressing) {
                 startMultiSelection(current, canvasState.origin);
             } else if (canvasState.mode === CanvasMode.SelectionNet) {
                 updateSelectionNet(current, canvasState.origin);
@@ -305,17 +375,8 @@ export const Canvas = ({ boardId }: CanvasProps) => {
             } else if (canvasState.mode === CanvasMode.Pencil) {
                 continueDrawing(current, e);
             }
-            setMyPresence({ cursor: current });
         },
-        [
-            continueDrawing,
-            canvasState,
-            resizeSelectedLayer,
-            camera,
-            translateSelectedLayers,
-            startMultiSelection,
-            updateSelectionNet,
-        ]
+        [camera, canvasState, arrowStart, startMultiSelection, updateSelectionNet, translateSelectedLayers, resizeSelectedLayer, continueDrawing]
     );
 
     const onPointerLeave = useMutation(({ setMyPresence }) => {
@@ -324,50 +385,47 @@ export const Canvas = ({ boardId }: CanvasProps) => {
 
     const onPointerDown = useCallback(
         (e: React.PointerEvent) => {
+            e.preventDefault();
+            const current = pointerEventToCanvasPoint(e, camera);
+
             if (canvasState.mode === CanvasMode.Inserting) {
+                if (canvasState.layerType === LayerType.Arrow) {
+                    setArrowStart(current);
+                    setCanvasState({
+                        mode: CanvasMode.Pressing,
+                        origin: current,
+                    });
+                } else {
+                    insertLayer(canvasState.layerType, current);
+                }
                 return;
             }
-
-            const point = pointerEventToCanvasPoint(e, camera);
 
             if (canvasState.mode === CanvasMode.Pencil) {
-                startDrawing(point, e.pressure);
+                startDrawing(current, e.pressure);
                 return;
             }
 
-            setCanvasState({ mode: CanvasMode.Pressing, origin: point });
+            setCanvasState({ mode: CanvasMode.Pressing, origin: current });
         },
-        [camera, canvasState.mode, setCanvasState, startDrawing]
+        [camera, canvasState, insertLayer, startDrawing]
     );
 
-    const onPointerUp = useMutation(
-        ({}, e) => {
-            const point = pointerEventToCanvasPoint(e, camera);
+    const onPointerUp = useCallback(
+        (e: React.PointerEvent) => {
+            const current = pointerEventToCanvasPoint(e, camera);
 
-            if (
-                canvasState.mode === CanvasMode.None ||
-                canvasState.mode === CanvasMode.Pressing
-            ) {
-                unSelectLayers();
-                setCanvasState({ mode: CanvasMode.None });
+            if (canvasState.mode === CanvasMode.Pressing && arrowStart) {
+                insertLayer(LayerType.Arrow, arrowStart, current);
             } else if (canvasState.mode === CanvasMode.Pencil) {
                 insertPath();
             } else if (canvasState.mode === CanvasMode.Inserting) {
-                insertLayer(canvasState.layerType, point);
+                insertLayer(canvasState.layerType, current);
             } else {
                 setCanvasState({ mode: CanvasMode.None });
             }
-            history.resume();
         },
-        [
-            setCanvasState,
-            camera,
-            canvasState,
-            history,
-            insertLayer,
-            unSelectLayers,
-            insertPath,
-        ]
+        [camera, canvasState, arrowStart, insertLayer, insertPath]
     );
 
     const selections = useOthersMapped((other) => other.presence.selection);
